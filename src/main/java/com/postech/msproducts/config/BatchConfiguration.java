@@ -2,9 +2,11 @@ package com.postech.msproducts.config;
 
 import com.postech.msproducts.domain.Product;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -14,6 +16,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.MongoItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -21,7 +24,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableBatchProcessing
+//@EnableBatchProcessing
 public class BatchConfiguration {
 
     @Bean
@@ -54,8 +57,8 @@ public class BatchConfiguration {
 
         return new FlatFileItemReaderBuilder<Product>()
                 .name("productReader")
-                .resource(new ClassPathResource("products.csv")) // se for passar parametros, nao usa @bean, cria metodo
-                .delimited()
+                .resource(new ClassPathResource("products-java.csv")) // se for passar parametros, nao usa @bean, cria metodo. Aqui procura dentro do resources
+                .delimited() // vai so iterar na linha
                 .names("name", "price", "quantity_stk")
                 .fieldSetMapper(fieldSetMapper)
                 .build();
@@ -65,14 +68,29 @@ public class BatchConfiguration {
     public ItemWriter<Product> itemWriter(MongoTemplate mongoTemplate) {
         MongoItemWriter<Product> writer = new MongoItemWriter<>();
         writer.setTemplate(mongoTemplate);
-        writer.setCollection("products"); //https://www.linkedin.com/pulse/spring-batch-read-from-xml-write-mongo-prateek-ashtikar/
-        //https://boottechnologies-ci.medium.com/spring-batch-and-mongodb-reading-and-writing-from-excel-file-fa4f55ded7b8
-        // Define o nome da coleção onde os produtos serão salvos
+        writer.setCollection("products");
         return writer;
     }
+    /*public ItemWriter<Product> itemWriter(DataSource dataSource) {
+        return new JdbcBatchItemWriterBuilder<Product>()
+                .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
+                .dataSource(dataSource)
+                .sql("INSERT INTO products (name, price, quantity_stk) VALUES (:name, :price, :quantity_stk)")
+                .build();
+    } utilizado para banco de dados relacionais*/
 
     @Bean
     public ItemProcessor<Product, Product> itemProcessor() {
         return new ProductProcessor();
+    }
+
+    @Bean
+    CommandLineRunner startJob(JobLauncher jobLauncher, Job processarProductsJob) {
+        return args -> {
+            JobParameters jobParameters = new JobParametersBuilder()
+                    .addLong("time", System.currentTimeMillis())
+                    .toJobParameters();
+            jobLauncher.run(processarProductsJob, jobParameters);
+        };
     }
 }

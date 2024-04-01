@@ -13,7 +13,7 @@ import java.util.UUID;
 @Service
 public class ProductService {
     @Autowired
-    private ProductRepository  productRepository;
+    private ProductRepository productRepository;
 
     public ProductDTO createProduct(ProductDTO productDTO){
         Product newProd = new Product(productDTO);
@@ -23,9 +23,8 @@ public class ProductService {
     }
 
     public Product findById(UUID id){
-        Product product = productRepository.findById(id)
+        return productRepository.findById(id)
                 .orElseThrow(()-> new IllegalArgumentException("The productId has not found"));
-        return product;
     }
 
     public ProductDTO updateStockIncrease(UUID id, int quantity){
@@ -60,7 +59,7 @@ public class ProductService {
 
     public Iterable<Product> findAll(){
         List<Product> products = productRepository.findAll();
-        List<ProductDTO> productDTOs = products.stream().map(Product::toDTO).toList();
+        //List<ProductDTO> productDTOs = products.stream().map(Product::toDTO).toList();
         return products;
     }
 
