@@ -11,7 +11,7 @@ public class ProductProcessor implements ItemProcessor<Product, Product> {
     public Product process(Product item) throws Exception {
         item.setCreated_at(LocalDateTime.now());
         if (item.getId() == null) {
-            item.setId(UUID.randomUUID()); // Gera e define o UUID
+            item.setId(UUID.randomUUID().toString()); // Gera e define o UUID
         }
         return item;
     }

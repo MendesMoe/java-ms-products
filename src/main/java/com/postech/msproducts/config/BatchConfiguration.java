@@ -13,14 +13,17 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.data.MongoItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -66,10 +69,18 @@ public class BatchConfiguration {
 
     @Bean
     public ItemWriter<Product> itemWriter(MongoTemplate mongoTemplate) {
-        MongoItemWriter<Product> writer = new MongoItemWriter<>();
-        writer.setTemplate(mongoTemplate);
-        writer.setCollection("products");
-        return writer;
+        return items -> {
+            for (Product item : items) {
+                // procura um produto existente com o mesmo nome e preço
+                Query query = new Query(Criteria.where("name").is(item.getName())
+                        .andOperator(Criteria.where("price").is(item.getPrice())));
+                Update update = new Update().set("quantity_stk", item.getQuantity_stk());
+                FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
+
+                // update o produto existente ou insere um novo se não existir
+                mongoTemplate.findAndModify(query, update, options, Product.class);
+            }
+        };
     }
     /*public ItemWriter<Product> itemWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<Product>()
