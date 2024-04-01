@@ -1,0 +1,44 @@
+# Compiled class files
+/target/
+/bin/
+/out/
+/build/
+
+# Package files (e.g., .jar, .war, .ear)
+*.jar
+*.war
+*.ear
+*.nar
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# IDE-specific files (IntelliJ IDEA)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Maven
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Other files to consider ignoring
+*.swp
+*~
+*.bak
+*.tmp
+*.class
+*.swp
+*.swo
