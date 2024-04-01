@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -40,7 +38,7 @@ public class ProductController {
     @Operation(summary = "Get one product by ID", responses = {
             @ApiResponse(description = "The product with this id", responseCode = "200")
     })
-    public ResponseEntity<?> getProductById(@PathVariable UUID id) {
+    public ResponseEntity<?> getProductById(@PathVariable String id) {
         Product product = productService.findById(id);
         return ResponseEntity.ok(product);
     }
@@ -49,7 +47,7 @@ public class ProductController {
     @Operation(summary = "Increase the stock for one product by ID", responses = {
             @ApiResponse(description = "The stock was updated", responseCode = "200")
     })
-    public ResponseEntity<?> updateStockIncrease(@Valid @PathVariable UUID id, @PathVariable int quantity){
+    public ResponseEntity<?> updateStockIncrease(@Valid @PathVariable String id, @PathVariable int quantity){
         ProductDTO productDTO = productService.updateStockIncrease(id, quantity);
         return ResponseEntity.ok(productDTO);
     }
@@ -58,7 +56,7 @@ public class ProductController {
     @Operation(summary = "Update the stock for one product by ID", responses = {
             @ApiResponse(description = "The stock was updated", responseCode = "200")
     })
-    public ResponseEntity<?> updateStockQuantity(@Valid @PathVariable UUID id, @PathVariable int newQuantity){
+    public ResponseEntity<?> updateStockQuantity(@Valid @PathVariable String id, @PathVariable int newQuantity){
         ProductDTO productDTO = productService.updateStockQuantity(id, newQuantity);
         return ResponseEntity.ok(productDTO);
     }
@@ -67,7 +65,7 @@ public class ProductController {
     @Operation(summary = "Delete a product by ID", responses = {
             @ApiResponse(description = "The product was deleted", responseCode = "204")
     })
-    public ResponseEntity<?> deleteById(@PathVariable UUID id){
+    public ResponseEntity<?> deleteById(@PathVariable String id){
         productService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

@@ -20,7 +20,7 @@ import java.util.UUID;
 public class Product {
 
     @MongoId
-    private UUID id;
+    private String id;
 
     @NotNull
     private String name;

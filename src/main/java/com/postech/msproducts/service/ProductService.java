@@ -17,18 +17,20 @@ public class ProductService {
 
     public ProductDTO createProduct(ProductDTO productDTO){
         Product newProd = new Product(productDTO);
-        newProd.setId(UUID.randomUUID());
+        newProd.setId(UUID.randomUUID().toString());
         newProd.setCreated_at(LocalDateTime.now());
         return productRepository.save(newProd).toDTO();
     }
 
-    public Product findById(UUID id){
-        return productRepository.findById(id)
+    public Product findById(String id){
+        UUID uuid = UUID.fromString(id);
+        return productRepository.findById(uuid)
                 .orElseThrow(()-> new IllegalArgumentException("The productId has not found"));
     }
 
-    public ProductDTO updateStockIncrease(UUID id, int quantity){
-        Product product = productRepository.findById(id)
+    public ProductDTO updateStockIncrease(String id, int quantity){
+        UUID uuid = UUID.fromString(id);
+        Product product = productRepository.findById(uuid)
                 .orElseThrow(()-> new IllegalArgumentException("The productId has not found"));
 
         if (product != null){
@@ -38,8 +40,9 @@ public class ProductService {
         throw new RuntimeException("Product not found");
     }
 
-    public ProductDTO updateStockDecrease(UUID id, int quantity){
-        Product product = productRepository.findById(id)
+    public ProductDTO updateStockDecrease(String id, int quantity){
+        UUID uuid = UUID.fromString(id);
+        Product product = productRepository.findById(uuid)
                 .orElseThrow(()-> new IllegalArgumentException("The productId has not found"));
 
         if (product != null){
@@ -49,8 +52,9 @@ public class ProductService {
         throw new RuntimeException("Product not found");
     }
 
-    public ProductDTO updateStockQuantity(UUID id, int newQuantity){//Product product = productRepository.updateQuantityByCSV(id).orElse(null);
-        Product product = productRepository.findById(id)
+    public ProductDTO updateStockQuantity(String id, int newQuantity){//Product product = productRepository.updateQuantityByCSV(id).orElse(null);
+        UUID uuid = UUID.fromString(id);
+        Product product = productRepository.findById(uuid)
                 .orElseThrow(()-> new IllegalArgumentException("The productId has not found"));
         product.setQuantity_stk(newQuantity);
         productRepository.save(product);
@@ -63,8 +67,9 @@ public class ProductService {
         return products;
     }
 
-    public void deleteById(UUID id){
-        productRepository.deleteById(id);
+    public void deleteById(String id){
+        UUID uuid = UUID.fromString(id);
+        productRepository.deleteById(uuid);
     }
 }
 

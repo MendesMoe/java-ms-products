@@ -10,7 +10,7 @@ public record ProductDTO(
 
         @NotNull
         @Min(value=0)
-        double price,
+        Double price,
 
         @NotNull
         @Min(value=0)
