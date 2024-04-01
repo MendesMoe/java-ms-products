@@ -3,10 +3,10 @@ package com.postech.msproducts.domain;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -26,7 +26,7 @@ public class Product {
     private String name;
 
     @NotNull
-    private double price;
+    private Double price;
 
     @Min(value=0)
     private int quantity_stk;
@@ -38,6 +38,13 @@ public class Product {
         this.name = productDTO.name();
         this.price = productDTO.price();
         this.quantity_stk = productDTO.quantity_stk();
+    }
+
+    public ProductDTO toDTO() {
+        return new ProductDTO(
+                this.name,
+                this.price,
+                this.quantity_stk);
     }
 }
 
