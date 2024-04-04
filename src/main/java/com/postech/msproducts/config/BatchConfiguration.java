@@ -1,6 +1,7 @@
 package com.postech.msproducts.config;
 
 import com.postech.msproducts.domain.Product;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -25,8 +26,15 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.validation.DataBinder;
+
+import java.beans.PropertyEditorSupport;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 @Configuration
+@Slf4j
 //@EnableBatchProcessing
 public class BatchConfiguration {
 
@@ -54,30 +62,61 @@ public class BatchConfiguration {
 
     @Bean
     public ItemReader<Product> itemReader() {
-
-        BeanWrapperFieldSetMapper<Product> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
+        BeanWrapperFieldSetMapper<Product> fieldSetMapper = new BeanWrapperFieldSetMapper<>() {
+            @Override
+            public void initBinder(DataBinder binder) {
+                binder.registerCustomEditor(LocalDateTime.class, new PropertyEditorSupport() {
+                    @Override
+                    public void setAsText(String text) throws IllegalArgumentException {
+                        if (text != null && !text.isEmpty()) {
+                            try {
+                                setValue(LocalDateTime.parse(text, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                            } catch (DateTimeParseException e) {
+                                throw new IllegalArgumentException("Could not parse date: " + text, e);
+                            }
+                        } else {
+                            setValue(null);
+                        }
+                    }
+                });
+            }
+        };
         fieldSetMapper.setTargetType(Product.class);
 
         return new FlatFileItemReaderBuilder<Product>()
                 .name("productReader")
-                .resource(new ClassPathResource("products-java.csv")) // se for passar parametros, nao usa @bean, cria metodo. Aqui procura dentro do resources
-                .delimited() // vai so iterar na linha
-                .names("name", "price", "quantity_stk")
+                .resource(new ClassPathResource("products-java.csv"))
+                .delimited()
+                .names("id", "name", "description", "price", "quantity_stk", "created_at", "updated_at")
                 .fieldSetMapper(fieldSetMapper)
                 .build();
     }
 
+    //Eficiência: As operações em lote são significativamente mais eficientes em termos de desempenho e uso de rede, especialmente para grandes conjuntos de dados.
+    //Erro Handling: Quando você executa operações em lote, especialmente no modo desordenado (UNORDERED), uma falha em uma das operações não necessariamente impede a execução das outras.
+    // Você deve considerar como quer lidar com erros em operações em lote e talvez revisar os resultados das operações para erros.
     @Bean
     public ItemWriter<Product> itemWriter(MongoTemplate mongoTemplate) {
         return items -> {
             for (Product item : items) {
-                // procura um produto existente com o mesmo nome e preço
-                Query query = new Query(Criteria.where("name").is(item.getName())
-                        .andOperator(Criteria.where("price").is(item.getPrice())));
-                Update update = new Update().set("quantity_stk", item.getQuantity_stk());
-                FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
+                Query query = new Query(Criteria.where("id").is(item.getId()));
+                // Procura um produto existente com o mesmo id
+                Update update = new Update()
+                        .set("name", item.getName())
+                        .set("description", item.getDescription())
+                        .set("price", item.getPrice())
+                        .set("quantity_stk", item.getQuantity_stk());
 
-                // update o produto existente ou insere um novo se não existir
+                // Somente atualiza `updated_at` para refletir a última modificação
+                update.set("updated_at", LocalDateTime.now());
+
+                // Para novos produtos, `created_at` também é definido
+                if (item.getCreated_at() == null) {
+                    update.set("created_at", LocalDateTime.now());
+                }
+                FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
+                log.info("ItemWriter =>>> " + update.toString());
+                // Atualiza o produto existente ou insere um novo se não existir
                 mongoTemplate.findAndModify(query, update, options, Product.class);
             }
         };
