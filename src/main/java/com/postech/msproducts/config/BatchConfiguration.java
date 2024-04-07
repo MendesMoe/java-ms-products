@@ -3,23 +3,22 @@ package com.postech.msproducts.config;
 import com.postech.msproducts.domain.Product;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -29,7 +28,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.validation.DataBinder;
 
 import java.beans.PropertyEditorSupport;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -39,10 +40,11 @@ import java.time.format.DateTimeParseException;
 public class BatchConfiguration {
 
     @Bean
-    public Job processarProductsJob(JobRepository jobRepository, Step step) {
+    public Job processarProductsJob(JobRepository jobRepository, Step step, Step step2) {
         return new JobBuilder("import-products", jobRepository)
                 .incrementer(new RunIdIncrementer()) // gera um novo id para a execução do job, instancias, melhor controle
                 .start(step)
+                .next(step2)
                 .build();
     }
 
@@ -57,9 +59,27 @@ public class BatchConfiguration {
                 .reader(itemReader)
                 .processor(itemProcessor)
                 .writer(itemWriter)
+                .taskExecutor(new SimpleAsyncTaskExecutor()) // assincrono e mais rapido
                 .build();
     }
 
+    @Bean
+    public Step step2(JobRepository jobRepository,
+                      PlatformTransactionManager platformTransactionManager,
+                      Tasklet tasklet) {
+        return new StepBuilder("program-time", jobRepository)
+                .tasklet(tasklet, platformTransactionManager)
+                .build();
+    }
+
+    @Bean
+    public Tasklet tasklet(){
+        return (contribution, chunkContext) -> {
+            System.out.println("Esperar 30 segundos, depois mudar para 12 horas");
+            Thread.sleep(30000);
+            return RepeatStatus.FINISHED;
+        };
+    }
     @Bean
     public ItemReader<Product> itemReader() {
         BeanWrapperFieldSetMapper<Product> fieldSetMapper = new BeanWrapperFieldSetMapper<>() {
@@ -70,9 +90,16 @@ public class BatchConfiguration {
                     public void setAsText(String text) throws IllegalArgumentException {
                         if (text != null && !text.isEmpty()) {
                             try {
+                                // Primeiro tenta analisar a data como LocalDateTime
                                 setValue(LocalDateTime.parse(text, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
                             } catch (DateTimeParseException e) {
-                                throw new IllegalArgumentException("Could not parse date: " + text, e);
+                                // Se nao der, tenta analisar como Instant e converter para LocalDateTime
+                                try {
+                                    Instant instant = Instant.parse(text);
+                                    setValue(LocalDateTime.ofInstant(instant, ZoneId.systemDefault()));
+                                } catch (DateTimeParseException ex) {
+                                    throw new IllegalArgumentException("Could not parse date: " + text, ex);
+                                }
                             }
                         } else {
                             setValue(null);
@@ -98,26 +125,28 @@ public class BatchConfiguration {
     @Bean
     public ItemWriter<Product> itemWriter(MongoTemplate mongoTemplate) {
         return items -> {
+            log.info("ItemWriter 1 =>>> " + items);
             for (Product item : items) {
+                log.info("ItemWriter 1 before update =>>> " + item);
                 Query query = new Query(Criteria.where("id").is(item.getId()));
                 // Procura um produto existente com o mesmo id
                 Update update = new Update()
+                        .set("id", item.getId())
                         .set("name", item.getName())
                         .set("description", item.getDescription())
                         .set("price", item.getPrice())
-                        .set("quantity_stk", item.getQuantity_stk());
+                        .set("quantity_stk", item.getQuantity_stk())
+                        .set("created_at", item.getCreated_at());
 
                 // Somente atualiza `updated_at` para refletir a última modificação
                 update.set("updated_at", LocalDateTime.now());
 
-                // Para novos produtos, `created_at` também é definido
-                if (item.getCreated_at() == null) {
-                    update.set("created_at", LocalDateTime.now());
-                }
                 FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
-                log.info("ItemWriter =>>> " + update.toString());
+
                 // Atualiza o produto existente ou insere um novo se não existir
                 mongoTemplate.findAndModify(query, update, options, Product.class);
+
+                log.info("ItemWriter 2 mongotemplate =>>> " + mongoTemplate.toString());
             }
         };
     }
@@ -134,13 +163,4 @@ public class BatchConfiguration {
         return new ProductProcessor();
     }
 
-    @Bean
-    CommandLineRunner startJob(JobLauncher jobLauncher, Job processarProductsJob) {
-        return args -> {
-            JobParameters jobParameters = new JobParametersBuilder()
-                    .addLong("time", System.currentTimeMillis())
-                    .toJobParameters();
-            jobLauncher.run(processarProductsJob, jobParameters);
-        };
-    }
 }
