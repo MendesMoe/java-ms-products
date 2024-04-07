@@ -125,7 +125,6 @@ public class BatchConfiguration {
     @Bean
     public ItemWriter<Product> itemWriter(MongoTemplate mongoTemplate) {
         return items -> {
-            log.info("ItemWriter 1 =>>> " + items);
             for (Product item : items) {
                 log.info("ItemWriter 1 before update =>>> " + item);
                 Query query = new Query(Criteria.where("id").is(item.getId()));
@@ -145,8 +144,6 @@ public class BatchConfiguration {
 
                 // Atualiza o produto existente ou insere um novo se não existir
                 mongoTemplate.findAndModify(query, update, options, Product.class);
-
-                log.info("ItemWriter 2 mongotemplate =>>> " + mongoTemplate.toString());
             }
         };
     }
