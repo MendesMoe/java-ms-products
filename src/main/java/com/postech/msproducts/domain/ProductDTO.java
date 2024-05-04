@@ -25,4 +25,7 @@ public record ProductDTO(
 
         LocalDateTime updated_at
 ) {
+    public String name() {
+        return name;
+    }
 }

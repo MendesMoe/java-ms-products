@@ -43,6 +43,13 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
+    @GetMapping("/{id}/{qtty}")
+    @Operation(summary = "Get the availability of a product by id and the quantity wanted", responses = {
+            @ApiResponse(description = "True if the qtty is found", responseCode = "200")
+    })
+    public Boolean isProductAvailableById(@PathVariable String id, @PathVariable int qtty) {
+        return productService.isProductAvailableById(id, qtty);
+    }
     @PutMapping("/updateStockIncrease/{id}/{quantity}")
     @Operation(summary = "Increase the stock for one product by ID", responses = {
             @ApiResponse(description = "The stock was updated", responseCode = "200")

@@ -12,8 +12,13 @@ import java.util.UUID;
 
 @Service
 public class ProductService {
+
     @Autowired
     private ProductRepository productRepository;
+
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
     public ProductDTO createProduct(ProductDTO productDTO){
         Product newProd = new Product(productDTO);
@@ -63,13 +68,23 @@ public class ProductService {
 
     public Iterable<Product> findAll(){
         List<Product> products = productRepository.findAll();
-        //List<ProductDTO> productDTOs = products.stream().map(Product::toDTO).toList();
         return products;
     }
 
     public void deleteById(String id){
         UUID uuid = UUID.fromString(id);
         productRepository.deleteById(uuid);
+    }
+
+    public Boolean isProductAvailableById(String id, int qttyNewOrder) {
+        UUID uuid = UUID.fromString(id);
+        Product product = productRepository.findById(uuid)
+                .orElseThrow(()-> new IllegalArgumentException("The productId has not found"));
+
+        if (product != null){
+            return product.getQuantity_stk() >= qttyNewOrder;
+        }
+        throw new RuntimeException("Product not found");
     }
 }
 
