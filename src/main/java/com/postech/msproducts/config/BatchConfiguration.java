@@ -75,8 +75,8 @@ public class BatchConfiguration {
     @Bean
     public Tasklet tasklet(){
         return (contribution, chunkContext) -> {
-            System.out.println("Esperar 30 segundos, depois mudar para 12 horas");
-            Thread.sleep(30000);
+            System.out.println("Aguarda 12 horas");
+            Thread.sleep(43200000);
             return RepeatStatus.FINISHED;
         };
     }
