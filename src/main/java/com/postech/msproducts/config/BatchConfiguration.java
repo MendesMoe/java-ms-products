@@ -15,7 +15,6 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -76,8 +75,8 @@ public class BatchConfiguration {
     @Bean
     public Tasklet tasklet(){
         return (contribution, chunkContext) -> {
-            System.out.println("Esperar 30 segundos, depois mudar para 12 horas");
-            Thread.sleep(30000);
+            System.out.println("Aguarda 12 horas");
+            Thread.sleep(43200000);
             return RepeatStatus.FINISHED;
         };
     }
@@ -127,7 +126,6 @@ public class BatchConfiguration {
     public ItemWriter<Product> itemWriter(MongoTemplate mongoTemplate) {
         return items -> {
             for (Product item : items) {
-                log.info("ItemWriter 1 before update =>>> " + item);
                 Query query = new Query(Criteria.where("id").is(item.getId()));
                 // Procura um produto existente com o mesmo id
                 Update update = new Update()
@@ -148,17 +146,9 @@ public class BatchConfiguration {
             }
         };
     }
-    /*public ItemWriter<Product> itemWriter(DataSource dataSource) {
-        return new JdbcBatchItemWriterBuilder<Product>()
-                .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .dataSource(dataSource)
-                .sql("INSERT INTO products (name, price, quantity_stk) VALUES (:name, :price, :quantity_stk)")
-                .build();
-    } utilizado para banco de dados relacionais*/
 
     @Bean
     public ItemProcessor<Product, Product> itemProcessor() {
         return new ProductProcessor();
     }
-
 }
