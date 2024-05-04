@@ -16,8 +16,11 @@ Quando a conexao for feita você pode visualisar as tables e criar a 'msproducts
 show databases
 use msproducts
 ````
-Ja existe um arquivo products-java.csv com alguns produtos no projeto. Ele sera importado para a db desde a execucao do ms. Entao voce pode fazer um get para ve-los
+Ja existe um arquivo products-java.csv com alguns produtos no projeto. Ele sera importado para a db desde a execucao do ms. Você pode consulta-los usando o endipoint:
 ````
 http://localhost:8081/api/products
 ````
-As outras rotas do CRUD também foram implementadas
+Todos os endpoints da API de produtos foram detalhados usando Swagger e estao disponiveis na url:
+````
+http://localhost:8081/swagger-ui/index.html
+````
