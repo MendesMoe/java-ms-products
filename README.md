@@ -18,9 +18,9 @@ use msproducts
 ````
 Ja existe um arquivo products-java.csv com alguns produtos no projeto. Ele sera importado para a db desde a execucao do ms. Você pode consulta-los usando o endipoint:
 ````
-http://localhost:8081/api/products
+http://localhost:8080/api/products
 ````
 Todos os endpoints da API de produtos foram detalhados usando Swagger e estao disponiveis na url:
 ````
-http://localhost:8081/swagger-ui/index.html
+http://localhost:8080/swagger-ui/index.html
 ````
