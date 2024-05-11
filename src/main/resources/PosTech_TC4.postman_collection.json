@@ -1,0 +1,429 @@
+{
+	"info": {
+		"_postman_id": "7b7bd979-d6bc-4ef8-9cbc-a70478c3c754",
+		"name": "PosTech_TC4",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12858581"
+	},
+	"item": [
+		{
+			"name": "ms-customers",
+			"item": [
+				{
+					"name": "1.0 Create Customer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Bruno\",\r\n  \"endereco\": \"Rua Legal, 123\",\r\n  \"cidade\": \"Sao Paulo\",\r\n  \"estado\": \"SP\",\r\n  \"cep\": \"12345-000\",\r\n  \"email\": \"bruno@email.com\",\r\n  \"cpf\": \"123.456.789-00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/customers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.0.1 Create Customer Invalid",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Bruno\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/customers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.0 Find All Customers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/customers/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"customers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.1 Find Customer By Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/customers/c0390cca-aba3-4c91-ac44-29ec5615f381",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"customers",
+								"c0390cca-aba3-4c91-ac44-29ec5615f381"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.0 Update Customer By Id",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Bruno Guerra\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/customers/1df4efd4-73be-49ad-87fa-3593205843c8",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"customers",
+								"1df4efd4-73be-49ad-87fa-3593205843c8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.0 Delete Customer By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/customers/fe120da4-24f8-41e4-90f5-150d1c69cd5f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"customers",
+								"fe120da4-24f8-41e4-90f5-150d1c69cd5f"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ms-orders",
+			"item": [
+				{
+					"name": "1.0 Create Order",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idCustomer\": \"c0390cca-aba3-4c91-ac44-29ec5615f381\",\r\n  \"itens\": [{\"idProduct\": 2, \"quantity\": 1},{\"idProduct\": 1, \"quantity\": 2}]    \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/orders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.0 Find All Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8082/orders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.1 Find Order By Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8082/orders/33e61849-5dc3-4f47-ab21-c2041d6bda09",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"orders",
+								"33e61849-5dc3-4f47-ab21-c2041d6bda09"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ms-products",
+			"item": [
+				{
+					"name": "1.0 Create Product",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Nome do Produto\",\r\n    \"description\": \"Descrição do Produto\",\r\n    \"price\": 99.99,\r\n    \"quantity_stk\": 10,\r\n    \"created_at\": \"2023-05-12T10:30:00\",\r\n    \"updated_at\": \"2023-05-12T15:45:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.0 Find All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.1 Find Product By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/products/c0390cca-aba3-4c91-ac44-29ec5615f381",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products",
+								"c0390cca-aba3-4c91-ac44-29ec5615f381"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Availability of Product",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/products/c0390cca-aba3-4c91-ac44-29ec5615f381/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products",
+								"c0390cca-aba3-4c91-ac44-29ec5615f381",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.0 Increase the stock Product by ID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/products/updateStockIncrease/c0390cca-aba3-4c91-ac44-29ec5615f381/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products",
+								"updateStockIncrease",
+								"c0390cca-aba3-4c91-ac44-29ec5615f381",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.1 Update the stock Product by ID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/products/updateStockIncrease/c0390cca-aba3-4c91-ac44-29ec5615f381/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products",
+								"updateStockIncrease",
+								"c0390cca-aba3-4c91-ac44-29ec5615f381",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.0 Delete Product By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/products/c0390cca-aba3-4c91-ac44-29ec5615f381",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"products",
+								"c0390cca-aba3-4c91-ac44-29ec5615f381"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
