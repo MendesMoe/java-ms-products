@@ -1,0 +1,30 @@
+services:
+  mongo-products:
+    image: mongo:latest
+    restart: always
+    container_name: mongo-products
+    hostname: "mongo-products"
+    environment:
+      - MONGO_INITDB_DATABASE=msproducts
+    ports:
+      - '27017:27017'
+    networks:
+      - my_network
+
+
+  msproducts:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - mongo-products
+    environment:
+      MONGO_HOSTNAME: mongo-products
+    ports:
+      - 8080:8080
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge
