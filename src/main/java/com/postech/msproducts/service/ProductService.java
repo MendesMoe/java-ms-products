@@ -2,6 +2,7 @@ package com.postech.msproducts.service;
 
 import com.postech.msproducts.domain.Product;
 import com.postech.msproducts.domain.ProductDTO;
+import com.postech.msproducts.exceptions.NotFoundException;
 import com.postech.msproducts.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,40 +31,31 @@ public class ProductService {
     public Product findById(String id){
         UUID uuid = UUID.fromString(id);
         return productRepository.findById(uuid)
-                .orElseThrow(()-> new IllegalArgumentException("The productId has not found"));
+                .orElseThrow(()-> new NotFoundException("The productId has not found"));
     }
 
     public ProductDTO updateStockIncrease(String id, int quantity){
         UUID uuid = UUID.fromString(id);
         Product product = productRepository.findById(uuid)
-                .orElseThrow(()-> new IllegalArgumentException("The productId has not found"));
+                .orElseThrow(()-> new NotFoundException("The productId has not found"));
 
         if (product != null){
             product.setQuantity_stk(product.getQuantity_stk() + quantity);
             return productRepository.save(product).toDTO();
         }
-        throw new RuntimeException("Product not found");
+        throw new NotFoundException("Product not found");
     }
 
     public ProductDTO updateStockDecrease(String id, int quantity){
         UUID uuid = UUID.fromString(id);
         Product product = productRepository.findById(uuid)
-                .orElseThrow(()-> new IllegalArgumentException("The productId has not found"));
+                .orElseThrow(()-> new NotFoundException("The productId has not found"));
 
         if (product != null){
             product.setQuantity_stk(product.getQuantity_stk() - quantity);
             return productRepository.save(product).toDTO();
         }
-        throw new RuntimeException("Product not found");
-    }
-
-    public ProductDTO updateStockQuantity(String id, int newQuantity){//Product product = productRepository.updateQuantityByCSV(id).orElse(null);
-        UUID uuid = UUID.fromString(id);
-        Product product = productRepository.findById(uuid)
-                .orElseThrow(()-> new IllegalArgumentException("The productId has not found"));
-        product.setQuantity_stk(newQuantity);
-        productRepository.save(product);
-        return product.toDTO();
+        throw new NotFoundException("Product not found");
     }
 
     public Iterable<Product> findAll(){
@@ -79,12 +71,12 @@ public class ProductService {
     public Boolean isProductAvailableById(String id, int qttyNewOrder) {
         UUID uuid = UUID.fromString(id);
         Product product = productRepository.findById(uuid)
-                .orElseThrow(()-> new IllegalArgumentException("The productId has not found"));
+                .orElseThrow(()-> new NotFoundException("The productId has not found"));
 
         if (product != null){
             return product.getQuantity_stk() >= qttyNewOrder;
         }
-        throw new RuntimeException("Product not found");
+        throw new NotFoundException("Product not found");
     }
 }
 

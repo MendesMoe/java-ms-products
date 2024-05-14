@@ -83,18 +83,6 @@ public class ProductServiceTest {
     }
 
     @Test
-    void update_stock_quantity(){
-        //arrange
-        Product product = newProduct();
-        //act
-        when(productService.updateStockQuantity(product.getId().toString(), 10)).thenReturn(product.toDTO());
-        //assert
-        ProductDTO productUpdated = productService.updateStockQuantity(product.getId().toString(), 10);
-        //assert
-        assert product.getQuantity_stk() == productUpdated.quantity_stk();
-    }
-
-    @Test
     void delete_product_by_id(){
         //arrange
         Product product = newProduct();

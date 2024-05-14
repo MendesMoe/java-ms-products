@@ -17,6 +17,10 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
     @PostMapping
     @Operation(summary = "Create a new product with a DTO", responses = {
             @ApiResponse(description = "The new product was created", responseCode = "201")
@@ -40,7 +44,7 @@ public class ProductController {
     })
     public ResponseEntity<?> getProductById(@PathVariable String id) {
         Product product = productService.findById(id);
-        return ResponseEntity.ok(product);
+        return ResponseEntity.ok(product.toDTO());
     }
 
     @GetMapping("/{id}/{qtty}")
@@ -59,12 +63,12 @@ public class ProductController {
         return ResponseEntity.ok(productDTO);
     }
 
-    @PutMapping("/updateStockQuantity/{id}/{quantity}")
-    @Operation(summary = "Update the stock for one product by ID", responses = {
+    @PutMapping("/updateStockDecrease/{id}/{quantity}")
+    @Operation(summary = "Decrease the stock for one product by ID", responses = {
             @ApiResponse(description = "The stock was updated", responseCode = "200")
     })
-    public ResponseEntity<?> updateStockQuantity(@Valid @PathVariable String id, @PathVariable int newQuantity){
-        ProductDTO productDTO = productService.updateStockQuantity(id, newQuantity);
+    public ResponseEntity<?> updateStockDecrease(@Valid @PathVariable String id, @PathVariable int quantity){
+        ProductDTO productDTO = productService.updateStockDecrease(id, quantity);
         return ResponseEntity.ok(productDTO);
     }
 
