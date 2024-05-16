@@ -16,6 +16,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    hostname: "ms-products"
     depends_on:
       - mongo-products
     environment:
@@ -28,3 +29,4 @@ services:
 networks:
   my_network:
     driver: bridge
+    external: true
