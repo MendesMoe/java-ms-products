@@ -19,14 +19,14 @@ WORKDIR /app
 
 COPY --from=build /app/target/*.jar /app/msproducts.jar
 
-CMD ["java", "-jar", "/app/msproducts.jar"]
+#CMD ["java", "-jar", "/app/msproducts.jar"]
 
 
-# Instalando wait-for-it.sh para poder esperar o rabbit e mongo
+# Instalando wait-for-it.sh para poder esperar o  mongo
 RUN apt-get update -y \
     && apt-get install -y wget netcat \
     && wget -O /usr/local/bin/wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh \
     && chmod +x /usr/local/bin/wait-for-it.sh
 
-# Aguardando até que o RabbitMQ e o MongoDB iniciem antes de iniciar a aplicação
+# Aguardando até que o MongoDB iniciem antes de iniciar a aplicação
 CMD ["/bin/bash", "-c", "wait-for-it.sh -t 0 mongo-products:27017 -- java -jar msproducts.jar"]
