@@ -17,18 +17,10 @@ public class SecurityConfigurations {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/products",
-                                "/api/products/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs",
-                                "/v3/api-docs/**",
-                                "/swagger-resources/**",
+                        .requestMatchers("/api/products", "/api/products/**",
+                                "/swagger-ui/**", "/v3/api-docs",
+                                "/v3/api-docs/**", "/swagger-resources/**",
                                 "/webjars/**")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.PUT,
-                                "/api/products/updateStockIncrease/**",
-                                "/api/products/updateStockDecrease/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated());
